@@ -2,6 +2,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include "Hexagon.h"
 
 Game::Game(const char* gameName, unsigned int width, unsigned int height)
 {
@@ -14,6 +15,10 @@ Game::Game(const char* gameName, unsigned int width, unsigned int height)
 Game::~Game()
 {
     isRunning = false;
+
+    // Delete objects here
+    delete hexagon;
+
     glfwDestroyWindow(window);
     glfwTerminate();
 }
@@ -23,8 +28,11 @@ int Game::Initialise()
     if(InitialiseGLFW() == -1) return -1;
     if(CreateWindow() == -1) return -1;
     if(InitialiseGLEW() == -1) return -1;
+    
+    glViewport(0, 0, width, height); // Set the viewport
 
     // TODO: Initialise stuff here
+    hexagon = new Hexagon();
 
     isRunning = true;
     return 0;
@@ -41,6 +49,7 @@ void Game::Render()
     glClear(GL_COLOR_BUFFER_BIT);
 
     // TODO: Render stuff here
+    hexagon->Render();
 
     glfwSwapBuffers(window);
 }
@@ -48,7 +57,8 @@ void Game::Render()
 void Game::HandleEvents()
 {
     glfwPollEvents();
-        
+
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) isRunning = false;
     if(glfwWindowShouldClose(window)) isRunning = false;
 }
 
@@ -60,16 +70,19 @@ int Game::InitialiseGLFW()
         return -1;
     }
 
-    // Set OpenGL version to 3.3
+    // Set OpenGL version to 3.3 and use core profile
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     return 0;
 }
 
 int Game::CreateWindow()
 {
-    window = glfwCreateWindow(1280, 720, "Learning OpenGL", NULL, NULL);
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);   // Prevent window from being resizeable
+
+    window = glfwCreateWindow(width, height, gameName, NULL, NULL);
     if (!window)
     {
         std::cout << "ERROR: Unable to create Window.\n";

@@ -2,6 +2,7 @@
 #define GAME_H
 
 struct GLFWwindow;
+class Hexagon;
 
 class Game
 {
@@ -27,6 +28,9 @@ private:
     const char* gameName;
     unsigned int width;
     unsigned int height;
+
+    // Objects
+    Hexagon* hexagon;
 };
 
 #endif
